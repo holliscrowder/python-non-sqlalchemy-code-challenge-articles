@@ -14,7 +14,7 @@ class Article:
     @author.setter
     def author(self, author):
         if not isinstance(author, Author):
-            raise ValueError("author must be of class type Author")
+            raise Exception("author must be of class type Author")
         else:
             self._author = author
 
@@ -25,7 +25,7 @@ class Article:
     @magazine.setter
     def magazine(self, magazine):
         if not isinstance(magazine, Magazine):
-            raise ValueError("magazine must be of class type Magazine")
+            raise Exception("magazine must be of class type Magazine")
         else:
             self._magazine = magazine
 
@@ -41,6 +41,10 @@ class Article:
             and not hasattr(self, "_title")
         ):
             self._title = title
+        else:
+            raise Exception(
+                "title must be a string between 5 and 50 characters and cannot be changed"
+            )
 
 
 class Author:
@@ -86,12 +90,19 @@ class Author:
     def name(self, name):
         if isinstance(name, str) and len(name) > 0 and not hasattr(self, "_name"):
             self._name = name
+        else:
+            raise ValueError(
+                "name must be a string with greater than 0 characters and cannot be changed"
+            )
 
 
 class Magazine:
+    all = []
+
     def __init__(self, name, category):
         self.name = name
         self.category = category
+        self.__class__.all.append(self)
 
     def articles(self):
         return [
@@ -132,6 +143,9 @@ class Magazine:
             return more_than_two_articles
         return None
 
+    def num_articles(self):
+        return len([article for article in Article.all if article.magazine == self])
+
     @property
     def name(self):
         return self._name
@@ -140,6 +154,10 @@ class Magazine:
     def name(self, name):
         if isinstance(name, str) and 2 <= len(name) <= 16:
             self._name = name
+        else:
+            raise ValueError(
+                "name must be a string between 2 and 16 characters in length"
+            )
 
     @property
     def category(self):
@@ -149,3 +167,14 @@ class Magazine:
     def category(self, category):
         if isinstance(category, str) and len(category) > 0:
             self._category = category
+        else:
+            raise ValueError("category must be a string greater than 0 characters")
+
+    @classmethod
+    def top_publisher(cls):
+        if len(cls.all) > 0:
+            top_publisher = max(cls.all, key=lambda magazine: magazine.num_articles())
+            if top_publisher.num_articles() > 0:
+                return top_publisher
+            return None
+        return None
